@@ -1,5 +1,8 @@
 #include "minilibx/mlx.h"
 
+	double range_R;
+	double range_I;
+
 typedef struct	s_data {
 	void	*img;
 	char	*addr;
@@ -12,7 +15,7 @@ typedef struct	s_vars {
 	void	*mlx;
 	void	*win;
 }				t_vars;
-
+void create_Mandelbrot(double window_x, double window_y, t_vars *vars);
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	char	*dst;
@@ -24,11 +27,21 @@ int	create_trgb(int t, int r, int g, int b)
 {
 	return (t << 24 | r << 16 | g << 8 | b);
 }
-int mouse_hook(int button, int x,int y, void *param)
+int mouse_hook(int button, int x,int y, t_vars *vars)
 {
 	printf("x: %i, y: %i, button: %i\n", x, y, button);
 	if (button == 4)
 	{
+		range_I = range_I * 0.8;
+		range_R = range_R * 0.8;
+		create_Mandelbrot(2000, 1000, vars);
+		
+	}
+	else if (button == 5)
+	{
+		range_I = range_I / 0.8;
+		range_R = range_R / 0.8;
+		create_Mandelbrot(2000, 1000, vars);
 		
 	}
 	//scroll out = button 4
@@ -36,14 +49,14 @@ int mouse_hook(int button, int x,int y, void *param)
 }
 
 
-void create_Mandelbrot(double window_x, double window_y)
+void create_Mandelbrot(double window_x, double window_y, t_vars	*vars)
 {
 	//void	*mlx;
 	//void	*mlx_win;
 	t_data	img;
 	int i = 100;
 	int j = 100;
-	t_vars	vars;
+	
 
 	
 	double x;
@@ -53,8 +66,7 @@ void create_Mandelbrot(double window_x, double window_y)
 	int max_iterations;
 	double middle_R;
 	double middle_I;
-	double range_R;
-	double range_I;
+
 	double c_R;
 	double c_I;
 	int iteration;
@@ -66,17 +78,15 @@ void create_Mandelbrot(double window_x, double window_y)
 	max_iterations = 100;
 	middle_R = -0.75;
 	middle_I = 0;
-	range_R = 3.5;
-	range_I = 2;
+
 	iteration = 0;
 	z_R = 0;
 	z_I = 0;
 	x = 0.0;
 	y = 0.0;
 
-	vars.mlx = mlx_init();
-	vars.win = mlx_new_window(vars.mlx, window_x, window_y, "Hello world!");
-	img.img = mlx_new_image(vars.mlx, window_x, window_y);
+	
+	img.img = mlx_new_image(vars->mlx, window_x, window_y);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
 								&img.endian);
 	while (x < window_x)
@@ -102,7 +112,7 @@ void create_Mandelbrot(double window_x, double window_y)
 			if (iteration >= max_iterations - 1)
 			{
 				//printf("Pixel: %f/%f, Farbe Schwarz\n", x, y);
-				my_mlx_pixel_put(&img, x, y, create_trgb(125, 255, 100, 100));
+				my_mlx_pixel_put(&img, x, y, create_trgb(0, 255, 100, 100));
 			}
 			else if (iteration >= max_iterations / 2)
 			{
@@ -120,17 +130,22 @@ void create_Mandelbrot(double window_x, double window_y)
 		x++;
 		
 	}
-	mlx_put_image_to_window(vars.mlx, vars.win, img.img, 0, 0);
-	mlx_mouse_hook(vars.win, mouse_hook, &vars);
-	mlx_loop(vars.mlx);
+	mlx_put_image_to_window(vars->mlx, vars->win, img.img, 0, 0);
+	mlx_mouse_hook(vars->win, mouse_hook, vars);
+	mlx_loop(vars->mlx);
 }
 
 int main()
 {
+		range_R = 3.5;
+	range_I = 2;
+	t_vars	vars;
 	double window_x;
 	double window_y;
-	window_x = 1500;
+	window_x = 2000;
 	window_y = 1000;
-	create_Mandelbrot(window_x, window_y);
+	vars.mlx = mlx_init();
+	vars.win = mlx_new_window(vars.mlx, window_x, window_y, "Hello world!");
+	create_Mandelbrot(window_x, window_y, &vars);
 }
 
