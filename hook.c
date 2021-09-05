@@ -13,7 +13,9 @@ int	key_hook(int keycode, t_vars *vars)
 
 int mouse_hook(int button, int x,int y, void *param)
 {
-	printf("x: %i, y: %i", x, y);
+	printf("x: %i, y: %i, button: %i\n", x, y, button);
+	//scroll out = button 4
+	//scroll in = button 5
 }
 int	main(void)
 {
