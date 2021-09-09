@@ -5,6 +5,8 @@
 	double middle_R = -0.75;
 	double middle_I = 0;
 	int max_iterations = 100;
+	double middle_x = 500.0;
+	double middle_y = 250.0;
 
 typedef struct	s_data {
 	void	*img;
@@ -33,24 +35,43 @@ int	create_trgb(int t, int r, int g, int b)
 
 int find_middle_Pixel(int window_x, int window_y, t_data *data)
 {
-	int middle_x = window_x / 2;
+	//int middle_x = window_x / 2;
 	int middle_y = window_y / 2;
 	//my_mlx_pixel_put(data->img, middle_x, middle_y, 0x00000000);
 }
 
 int mouse_hook(int button, int x,int y, t_vars *vars)
 {
-	double middle_x = 1000 / 2;
-	double  middle_y = 500 / 2;
+	//double middle_x = 1000 / 2;
+	//double  middle_y = 500 / 2;
 	printf("x: %i, y: %i, button: %i\n", x, y, button);
+	//Achtung Raus, Linux code
+	if (button == 1)
+	{
+		//double x_ratio = x / 1000.00;
+		double ratio_x = (x - middle_x) / 1000;
+		double ratio_y = (y - middle_y) / 500;
+		middle_R = middle_R + (range_R * ratio_x);
+		printf("middle_R = %f, ratio =  %f\n", middle_R, ratio_x);
+		middle_I = middle_I + (range_I * ratio_y);
+		printf("middle_I = %f, ratio =  %f\n", middle_I, ratio_y);
+		//middle_x = x - middle_x;
+		range_R = range_R * 0.8;
+		range_I = range_I * 0.8;
+
+		 middle_R = middle_R - (range_R * ratio_x);
+		 middle_I = middle_I - (range_I * ratio_y);
+		create_Mandelbrot(1000, 500, vars);
+
+	}
 	if (button == 4) // zoom in
 	{
 		
 		printf("middle_R = %f, middle_I= %f\n", middle_R, middle_I);
+		//middle_R = (middle_x - (x - middle_x));
+		//middle_I = (middle_y - (y - middle_y);
 		range_I = range_I * 0.8;
 		range_R = range_R * 0.8;
-		middle_R = middle_R + ((x - middle_x) / 1000) * range_R * 0.2;
-		middle_I = middle_I + ((y - middle_y) / 500 ) * range_I * 0.2;
 		create_Mandelbrot(1000, 500, vars);
 		
 	}
