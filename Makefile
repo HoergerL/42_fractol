@@ -1,6 +1,7 @@
 
 mandelbrot:
-	gcc fractol.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
+	gcc fractol.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx -g
+
 hook:
 	gcc hook.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
 window :
