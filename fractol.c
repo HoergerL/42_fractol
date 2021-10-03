@@ -1,13 +1,5 @@
 #include "minilibx/mlx.h"
 
-	double range_R;
-	double range_I;
-	double middle_R = -0.75;
-	double middle_I = 0;
-	int max_iterations = 100;
-	double middle_x = 500.0;
-	double middle_y = 250.0;
-
 typedef struct	s_data {
 	void	*img;
 	char	*addr;
@@ -16,11 +8,34 @@ typedef struct	s_data {
 	int		endian;
 }				t_data;
 
-typedef struct	s_vars {
+typedef struct	s_window {
 	void	*mlx;
 	void	*win;
+}				t_window;
+
+typedef struct s_vars {
+	double		window_x;
+	double		window_y;
+	t_window	*window;
+	double		range_R;
+	double		range_I;
+	double		middle_R;
+	double		middle_I;
+	int			max_iterations;
+	double		middle_x;
+	double		middle_y;
+	double		x;
+	double		y;
+	t_data		*data;
+	double		z_R;
+	double		z_I;
+	double		temp_z_R;
+	double		c_R;
+	double		c_I;
+	int			iteration;
 }				t_vars;
-void create_Mandelbrot(double window_x, double window_y, t_vars *vars);
+
+void create_Fractal(t_vars *vars);
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	char	*dst;
@@ -33,199 +48,209 @@ int	create_trgb(int t, int r, int g, int b)
 	return (t << 24 | r << 16 | g << 8 | b);
 }
 
-int find_middle_Pixel(int window_x, int window_y, t_data *data)
+static int	exit_hook(void)
 {
-	//int middle_x = window_x / 2;
-	int middle_y = window_y / 2;
-	//my_mlx_pixel_put(data->img, middle_x, middle_y, 0x00000000);
+	//mlx_destroy_image
+	//mlx_destroy_window
+	exit(0);
 }
-
 int mouse_hook(int button, int x,int y, t_vars *vars)
 {
-	//double middle_x = 1000 / 2;
-	//double  middle_y = 500 / 2;
 	printf("x: %i, y: %i, button: %i\n", x, y, button);
-	//Achtung Raus, Linux code
-	if (button == 1)
+	if (button == 4) //zoom in
 	{
-		//double x_ratio = x / 1000.00;
-		double ratio_x = (x - middle_x) / 1000;
-		double ratio_y = (y - middle_y) / 500;
-		middle_R = middle_R + (range_R * ratio_x);
-		printf("middle_R = %f, ratio =  %f\n", middle_R, ratio_x);
-		middle_I = middle_I + (range_I * ratio_y);
-		printf("middle_I = %f, ratio =  %f\n", middle_I, ratio_y);
+		double ratio_x = (x - vars->middle_x) / 1000;
+		double ratio_y = (y - vars->middle_y) / 500;
+		vars->middle_R = vars->middle_R + (vars->range_R * ratio_x);
+		printf("middle_R = %f, ratio =  %f\n", vars->middle_R, ratio_x);
+		vars->middle_I = vars->middle_I + (vars->range_I * ratio_y);
+		printf("middle_I = %f, ratio =  %f\n", vars->middle_I, ratio_y);
 		//middle_x = x - middle_x;
-		range_R = range_R * 0.8;
-		range_I = range_I * 0.8;
+		vars->range_R = vars->range_R * 0.8;
+		vars->range_I = vars->range_I * 0.8;
 
-		 middle_R = middle_R - (range_R * ratio_x);
-		 middle_I = middle_I - (range_I * ratio_y);
-		create_Mandelbrot(1000, 500, vars);
+		vars->middle_R = vars->middle_R - (vars->range_R * ratio_x);
+		vars->middle_I = vars->middle_I - (vars->range_I * ratio_y);
+		create_Fractal(vars);
 
-	}
-	if (button == 4) // zoom in
-	{
-		
-		printf("middle_R = %f, middle_I= %f\n", middle_R, middle_I);
-		//middle_R = (middle_x - (x - middle_x));
-		//middle_I = (middle_y - (y - middle_y);
-		range_I = range_I * 0.8;
-		range_R = range_R * 0.8;
-		create_Mandelbrot(1000, 500, vars);
-		
 	}
 	else if (button == 5) // zoom out
 	{
 		
-		range_I = range_I / 0.8;
-		range_R = range_R / 0.8;
-		create_Mandelbrot(1000, 500, vars);
+		vars->range_I = vars->range_I / 0.8;
+		vars->range_R = vars->range_R / 0.8;
+		create_Fractal(vars);
 		
 	}
-	//scroll out = button 4
-	//scroll in = button 5
-	//up = 126
-	//down = 125
 }
-
-
 int key_hook(int keycode, t_vars *vars)
 {
 	printf("Hello from key_hook: %i!\n", keycode);
-	if (keycode == 0) // a
+
+	if (keycode == 13) // w
 	{
-		middle_R = middle_R - 0.1 * range_R;
-		create_Mandelbrot(1000, 500, vars);
-	}
-	else if (keycode == 13) // w
-	{
-		middle_I = middle_I - 0.1 * range_I;
-		create_Mandelbrot(1000, 500, vars);
-	}
-	else if (keycode == 2) // d
-	{
-		middle_R = middle_R + 0.1 * range_R;
-		create_Mandelbrot(1000, 500, vars);
+		vars->max_iterations =  vars->max_iterations / 0.9 + 1;
+		//printf("max iteration: %i", max_iterations);
+		create_Fractal(vars);
 	}
 	else if (keycode == 1) // s
 	{
-		middle_I = middle_I + 0.1 * range_I;
-		create_Mandelbrot(1000, 500, vars);
-	}
-	else if (keycode == 126) // zoom in
-	{
-		max_iterations =  max_iterations / 0.9 + 1;
-		printf("max iteration: %i", max_iterations);
-		create_Mandelbrot(1000, 500, vars);
-	}
-	else if (keycode == 125) // zoom out
-	{
-		printf("max iteration: %i", max_iterations);
-		if ((max_iterations = max_iterations * 0.9 + 1) < 2)
-			max_iterations = 1;
+		//printf("max iteration: %i", max_iterations);
+		if ((vars->max_iterations = vars->max_iterations * 0.9 + 1) < 2)
+			vars->max_iterations = 1;
 		else
-		max_iterations = max_iterations * 0.9;
-		create_Mandelbrot(1000, 500, vars);
+		vars->max_iterations = vars->max_iterations * 0.9;
+		create_Fractal(vars);
 	}
+	else if (keycode == 126) // improve max_iteration
+	{
+		vars->middle_I = vars->middle_I - 0.1 * vars->range_I;
+		create_Fractal(vars);
+	}
+	else if (keycode == 125) // lower max_iteration
+	{
+		vars->middle_I = vars->middle_I + 0.1 * vars->range_I;
+		create_Fractal(vars);
+	}
+	else if (keycode == 123)
+	{
+		vars->middle_R = vars->middle_R - 0.1 * vars->range_R;
+		create_Fractal(vars);
+	}
+	else if (keycode == 124)
+	{
+		vars->middle_R = vars->middle_R + 0.1 * vars->range_R;
+		create_Fractal(vars);
+	}
+	else if (keycode == 53)
+	{
+		exit (0);
+	}
+	{
+		/* code */
+	}
+	
 	return 0;
 }
 
-
-
-void create_Mandelbrot(double window_x, double window_y, t_vars	*vars)
+void create_colors(t_vars *vars)
 {
-	//void	*mlx;
-	//void	*mlx_win;
-	t_data	img;
-	
-	double x;
-	double y;
-	double percentage_y;
-	double percentage_x;
-	//int max_iterations;
-	//double middle_R;
-	//double middle_I;
-
-	double c_R;
-	double c_I;
-	int iteration;
-	double z_R;
-	double z_I;
-	double temp_z_R;
-
-	//max_iterations = 100;
-
-	iteration = 0;
-	z_R = 0;
-	z_I = 0;
-	x = 0.0;
-	y = 0.0;
-
-	
-	img.img = mlx_new_image(vars->mlx, window_x, window_y);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
-								&img.endian);
-	while (x < window_x)
-	{
-		while (y < window_y)
-		{
-			percentage_x = x / window_x;
-			percentage_y = y / window_y;
-			c_R = percentage_x * range_R + middle_R - range_R / 2;
-			c_I = percentage_y * range_I + middle_I - range_I / 2;
-			iteration = 0;
-			z_I = 0;
-			z_R = 0;
-
-			while (iteration < max_iterations && z_R * z_R + z_I * z_I <= 4.0)
-			{
-				temp_z_R = z_R * z_R - z_I * z_I + c_R;
-				z_I = 2 * z_R * z_I + c_I;
-				z_R = temp_z_R;
-				iteration++;
-			}
-		
-		
-			if (iteration >= max_iterations - 1)
+	if (vars->iteration >= vars->max_iterations - 1)
 			{
 				//printf("Pixel: %f/%f, Farbe Schwarz\n", x, y);
-				my_mlx_pixel_put(&img, x, y, create_trgb(0, 100 * iteration / max_iterations, 200, 255 * iteration / max_iterations));
+				my_mlx_pixel_put(vars->data, vars->x, vars->y, create_trgb(0, 100 * vars->iteration / vars->max_iterations, 200, 255 * vars->iteration / vars->max_iterations));
 			}
-			else if (iteration >= max_iterations / 2)
+			else if (vars->iteration >= vars->max_iterations / 2)
 			{
 				//printf("Pixel: %f/%f, Farbe Schwarz\n", x, y);
-				my_mlx_pixel_put(&img, x, y, create_trgb(0, 100, 255 * iteration / max_iterations, 100));
+				my_mlx_pixel_put(vars->data, vars->x, vars->y, create_trgb(0, 100, 255 * vars->iteration / vars->max_iterations, 100));
 			}
 			else
 			{
 				//printf("Pixel: %f/%f, Farbe weiss\n", x, y);
-				my_mlx_pixel_put(&img, x, y, create_trgb(0, 100, 100, 255 * iteration / max_iterations));
+				my_mlx_pixel_put(vars->data, vars->x, vars->y, create_trgb(0, 100, 100, 255 * vars->iteration / vars->max_iterations));
 			}
-			y++;
+			if (vars->iteration % 2 ==0)
+			{
+				my_mlx_pixel_put(vars->data, vars->x, vars->y, create_trgb(0,255, 0, 0));
+			}
+			else if (vars->iteration % 2 == 1)
+			{
+				my_mlx_pixel_put(vars->data, vars->x, vars->y, create_trgb(0,0, 255, 0));
+			}
+}
+void calculate_mandelbrot(t_vars *vars, double percentage_x, double percentage_y)
+{
+	vars->c_R = percentage_x * vars->range_R + vars->middle_R - vars->range_R / 2;
+	vars->c_I = percentage_y * vars->range_I + vars->middle_I - vars->range_I / 2;
+	vars->iteration = 0;
+	vars->z_I = 0.0;
+	vars->z_R = 0.0;
+	while (vars->iteration < vars->max_iterations && vars->z_R * vars->z_R + vars->z_I * vars->z_I <= 4.0)
+	{
+		vars->temp_z_R = vars->z_R * vars->z_R - vars->z_I * vars->z_I + vars->c_R;
+		vars->z_I = 2 * vars->z_R * vars->z_I + vars->c_I;
+		vars->z_R = vars->temp_z_R;
+		vars->iteration = vars->iteration + 1;
+	}
+}
+
+void calculate_julia(t_vars *vars, double percentage_x, double percentage_y)
+{
+	vars->z_R = percentage_x * vars->range_R + vars->middle_R - vars->range_R / 2;
+	vars->z_I = percentage_y * vars->range_I + vars->middle_I - vars->range_I / 2;
+	vars->iteration = 0;
+	vars->c_I = 0.5;
+	vars->c_R = 0.3;
+	while (vars->iteration < vars->max_iterations && vars->z_R * vars->z_R + vars->z_I * vars->z_I <= 4.0)
+	{
+		vars->temp_z_R = vars->z_R * vars->z_R - vars->z_I * vars->z_I + vars->c_R;
+		vars->z_I = 2 * vars->z_R * vars->z_I + vars->c_I;
+		vars->z_R = vars->temp_z_R;
+		vars->iteration = vars->iteration + 1;
+	}
+}
+
+void create_pixel(t_vars *vars)
+{
+	double percentage_y;
+	double percentage_x;
+
+	while (vars->x < vars->window_x)
+	{
+		while (vars->y < vars->window_y)
+		{
+			percentage_x = vars->x / vars->window_x;
+			percentage_y = vars->y / vars->window_y;
+
+			//calculate_julia(vars, percentage_x, percentage_y);
+			calculate_mandelbrot(vars, percentage_x, percentage_y);
+			create_colors(vars);
+			vars->y= vars->y + 1;
 		}
-		y = 0;
-		x++;
+		vars->y = 0;
+		vars->x = vars->x + 1;
 		
 	}
-	find_middle_Pixel(window_x, window_y, &img);
-	mlx_put_image_to_window(vars->mlx, vars->win, img.img, 0, 0);
-	mlx_mouse_hook(vars->win, mouse_hook, vars);
-	mlx_key_hook(vars->win, key_hook, vars);
-	mlx_loop(vars->mlx);
+}
+
+void create_Fractal(t_vars *vars)
+{
+	t_data	img;
+	
+	vars->iteration = 0;
+	vars->x = 0.0;
+	vars->y = 0.0;
+	vars->data = &img;
+	vars->data->img = mlx_new_image(vars->window->mlx, vars->window_x, vars->window_y);
+	vars->data->addr = mlx_get_data_addr(vars->data->img, &vars->data->bits_per_pixel, &vars->data->line_length,
+								&vars->data->endian);
+	create_pixel(vars);
+	mlx_put_image_to_window(vars->window->mlx, vars->window->win, vars->data->img, 0, 0);
+	mlx_mouse_hook(vars->window->win, mouse_hook, vars);
+	mlx_key_hook(vars->window->win, key_hook, vars);
+	mlx_hook(vars->window->win, 17, 0, exit_hook, &vars);
+	mlx_loop(vars->window->mlx);
 }
 
 int main()
 {
-		range_R = 3.5;
-	range_I = 2;
-	t_vars	vars;
-	double window_x;
-	double window_y;
-	window_x = 1000;
-	window_y = 500;
-	vars.mlx = mlx_init();
-	vars.win = mlx_new_window(vars.mlx, window_x, window_y, "Hello world!");
-	create_Mandelbrot(window_x, window_y, &vars);
-}
+	t_window	window;
+	t_vars		vars;
 
+	vars.range_R = 3.5;
+	vars.range_I = 2;
+	vars.middle_I = 0;
+	vars.middle_x = 500.0;
+	vars.window_x = 1000;
+	vars.window_y = 500;
+	vars.middle_R = -0.75;
+	vars.max_iterations = 100;
+	vars.middle_y = 250.0;
+	vars.window = &window;
+	window.mlx = mlx_init();
+	window.win = mlx_new_window(window.mlx, vars.window_x, vars.window_y, "Fractal");
+	create_Fractal(&vars);
+	system("leaks a.out");
+	return 0;
+}
