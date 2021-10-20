@@ -1,9 +1,17 @@
-mandelbrot:
-	gcc fractol.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
-hook:
-	gcc hook.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
-window :
-	gcc creating_window.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
+NAME = fractol
+CC = gcc
+CFLAGS = -Wall -Werror -Wextra
+LIBXFLAGS = -O3 -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
+FILES = fractol.c calculate_fractols.c hooks.c handle_input_utils.c handle_input.c hooks_utils.c
 
-test_images:
-	gcc img.c -framework OpenGL -framework AppKit -Wall -Wextra -Lminilibx -lmlx
+all: $(NAME)
+$(NAME):
+	make -C ./minilibx
+	$(CC) $(CFLAGS) $(LIBXFLAGS) $(FILES) -o $(NAME)
+
+clean:
+	cd minilibx && make clean
+fclean: clean
+	rm -f $(NAME)
+re: fclean all
+bonus: all
