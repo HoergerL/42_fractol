@@ -32,6 +32,8 @@ The Julia set is based on the same formula as the Mandelbrot set, but while calc
 4.  increase decrease quality (max_iteration)
 <img src="https://github.com/HoergerL/fractol/blob/master/Pictures/Mandelbrot_less_max_iteration.png" height="200">
 <img src="https://github.com/HoergerL/fractol/blob/master/Pictures/Mandelbrot_high_max_iteration.png" height="200">
+5. changing the displayed fractal with the numbers 1 (Julia) 2 (Mandelbrot) and 3 (Tricorn)
+6. <img src="https://github.com/HoergerL/fractol/blob/master/Pictures/tricorn.png" height="200">
 <p> &nbsp </p>
 
 ## approach to the project (for 42 students)
