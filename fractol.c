@@ -6,7 +6,7 @@
 /*   By: lhoerger <lhoerger@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 16:18:23 by lhoerger          #+#    #+#             */
-/*   Updated: 2021/10/20 12:40:32 by lhoerger         ###   ########.fr       */
+/*   Updated: 2021/10/22 14:34:09 by lhoerger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	*(unsigned int *) dst = color;
 }
 
-static int	ft_colourcalc(t_vars *vars)
+int	ft_colourcalc(t_vars *vars)
 {
 	double	ratio;
 	int		colour[4];

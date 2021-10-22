@@ -6,7 +6,7 @@
 /*   By: lhoerger <lhoerger@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 16:16:34 by lhoerger          #+#    #+#             */
-/*   Updated: 2021/10/20 13:08:45 by lhoerger         ###   ########.fr       */
+/*   Updated: 2021/10/22 14:46:35 by lhoerger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,30 +76,80 @@ typedef struct s_vars {
 	int			shift;
 }				t_vars;
 
-void	create_Fractal(t_vars *vars);
+
+
+//******************** calculate_fractols.h *********************************//
+
+// this function does the actual math to create the Mandelbrot fractal
 void	calculate_mandelbrot(t_vars *vars, double perc_x, double perc_y);
+// this function does the actual math to create the tricorn fractal
 void	calculate_mandelbrot_mod(t_vars *vars, double perc_x, double perc_y);
+// this function does the actual math to create the Julia fractal
 void	calculate_julia(t_vars *vars, double perc_x, double perc_y);
-int		exit_hook(t_vars *vars);
-int		mouse_hook(int button, int x, int y, t_vars *vars);
-void	handler_fractol_change(int keycode, t_vars *vars);
-void	handler_arrows(int keycode, t_vars *vars);
-int		key_hook(int keycode, t_vars *vars);
-void	handle_input(int argc, char *argv[], t_vars *vars);
-void	set_vars_mandelbrot(t_vars *vars);
-void	set_vars_mandelbrot_mod(t_vars *vars);
-void	set_vars_julia(t_vars *vars);
-int		ft_strncmp(char *s1, char *s2, unsigned int n);
-int		ft_strlen(const char *s);
-int		ft_strchr(const char *s, int c);
-void	print_error(void);
-int		ft_strncmp(char *s1, char *s2, unsigned int n);
-int		ft_isdigit(int c);
-int		ft_strlen(const char *s);
-int		ft_strchr(const char *s, int c);
-int		exit_hook(t_vars *vars);
-void	mouse_hook_util(int flag, int x, int y, t_vars *vars);
-int		mouse_hook(int button, int x, int y, t_vars *vars);
-void	set_vars_julia(t_vars *vars);
+// saves a colour in an integer
 int		create_trgb(int t, int r, int g, int b);
+
+
+//******************** fractol.c ********************************************//
+
+// this function manages the creation of fractals
+void	create_Fractal(t_vars *vars);
+// this function is responsible for the calculations behind one single pixel
+void	create_pixel(t_vars *vars);
+// this function calculates the different colors depending on the shift variable
+int		ft_colourcalc(t_vars *vars);
+//with this function you put the pixel at the right place of the window
+void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
+
+
+//******************** handle_input_utils.c *********************************//
+
+// this function is called when an error with the input occurs
+void	print_error(void);
+// this function searches char c in string s and returns the index
+int		ft_strchr(const char *s, int c);
+// this function compares 2 strings and returns the difference of the first different chars
+int		ft_strncmp(char *s1, char *s2, unsigned int n);
+// this function checks whether c is digit
+int		ft_isdigit(int c);
+//this function calculates the length of a string
+int		ft_strlen(const char *s);
+
+
+//******************** handle_input.c ***************************************//
+// this function coordinates the handling of the input char
+void	handle_input(int argc, char *argv[], t_vars *vars);
+// this function handles the input for the Julia set
+void	check_julia(int argc, t_vars *vars, char *argv[]);
+// this function converts a String to a double
+double	ft_atof(char *str);
+//this function does the convertion of the non decimal places
+void	ft_atof_helper(char *str, int *i, double *num);
+// this function calculates the power of a number
+int	power(int num, int pow);
+
+
+//******************** hooks_utils.c ***************************************//
+// this function handles the exit of the window (ESC and red cross)
+int		exit_hook(t_vars *vars);
+// this function handles the mouse hook for zooming in and out
+void	mouse_hook_util(int flag, int x, int y, t_vars *vars);
+// this function coordinates the mouse hook for zooming in and out
+int		mouse_hook(int button, int x, int y, t_vars *vars);
+// this function sets the variables in case a Julia set should be drawn
+void	set_vars_julia(t_vars *vars);
+
+
+//******************** hooks.c **********************************************//
+// this function handles the change of the displayed fractal by pressing 1 2 or 3
+void	handler_fractol_change(int keycode, t_vars *vars);
+// this function handles the pressing of arrows to move the frame
+void	handler_arrows(int keycode, t_vars *vars);
+// this function coordinates the handling of key press events
+int		key_hook(int keycode, t_vars *vars);
+// this function sets the variables for the creation of mandelbrot
+void	set_vars_mandelbrot(t_vars *vars);
+// this function sets the variables for the creation of tricorn
+void	set_vars_mandelbrot_mod(t_vars *vars);
+
 #endif
